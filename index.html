@@ -1,0 +1,321 @@
+<head>
+	<style type="text/css">
+	li{ margin:0; padding:0}
+		ul {
+			position: relative;
+			border-style: solid;
+			border-color: black;
+			border-width: thin;
+		}
+
+		topic {
+			position: relative;
+			top: 20px;
+		}
+		
+		#content {
+			text-align:center;
+			position: absolute;
+			top: 10%;
+			width: 400px;
+			height: 250px;
+			left: 30%;
+			border-style: solid;
+			border-color: black;
+			border-width: thin;
+			background-color: #FFF;
+			display: none;
+			z-index: 2;
+		}
+
+		#mask { 
+ 			width:100%; 
+ 			height:100%; 
+ 			background-color:#111; 
+ 			filter:alpha(opacity=50); 
+ 			-moz-opacity:0.5; 
+ 			opacity:0.5; 
+ 			position:absolute; 
+ 			left:0px; 
+ 			top:0px; 
+ 			display:none; 
+ 			z-index:1; 
+		}
+		
+		button {
+			border-style: solid;
+			border-color: black;
+			border-width: thin;
+			background-color: white;
+			height: 35px;
+			width: 100px;
+		}
+
+		staff {
+			border-style: solid;
+			border-color: black;
+			border-width: thin;
+		}
+	</style>
+
+	
+</head>
+
+	
+
+<body>
+
+	<ul style="float: left;">
+		<li>站点名称：<div id="Site_name"> </div></li>
+		<li>站点等级：<div id="Site_Level"></div>
+		</li>
+		<li>员工数量：<div id="staff_capacity"></div>
+		</li>
+		<li>收容间数量：<div id="enemy_capacity"></div>
+		</li>
+		<li>资金：<a id="money"></a><a id="speed" style="color:#7CFC00;">(+0)</a>
+		</li>
+	</ul>
+	<!--
+	基本信息 应该不会往里加东西？所以就直接这么写了
+	-->
+	<topic>
+		
+	</topic>
+	<!--
+		顶部栏
+	-->
+
+	<div id="mask"></div>
+
+	<div id="content">	
+
+		<div>请从以下三个职员中选取一个作为你的站点员工：
+		<br> </div>
+		<div id="staff_1" class="staff"> </div>
+		<div id="staff_2" class="staff"> </div>
+		<div id="staff_3" class="staff"> </div>
+		
+		<div id="choose_a_staff">
+			<button id="first" type="button" onclick="save_staff(1)"> </button>
+			<button id="second" type="button" onclick="save_staff(2)"> </button>
+			<button id="third" type="button" onclick="save_staff(3)"> </button>
+		</div>
+		<br>
+
+		<button id="yes" onclick="Hide()">确定</button>
+		<button id="no" onclick="Hide()">取消</button>
+
+	</div>
+
+	
+
+	<button onclick="Popup();">招募一个员工</button>
+	
+	<div id="show_staff">
+	<!--
+		<ul style="position: relative;float: left;left:20px;top:50px;height:100px;width: 120px;display: none;" id="show_staff_1">
+			<li><div id="show_staff_name_1"></div></li>
+			<li><div id="show_staff_hp_1"></div></li>
+			<li><div id="show_staff_san_1"></div></li>
+			<li><div id="show_staff_salary_1"></div></li>
+		</ul>
+	-->
+	</div>
+
+</body>
+
+<script type="text/javascript">
+
+	var Site_Level = 1;
+	var money = 5000;
+	var enemy_capacity = 10;
+	var staff_capacity = 5;
+	var speed = 200;
+	
+	var staff_name = new Array(50);
+	var staff_san = new Array(50);
+	var staff_hp = new Array(50);
+	var staff_salary = new Array(50);
+
+	var staff_now = 0;
+
+	var staff_1;
+	var staff_2;
+	var staff_3;
+	var staff_sp;//特殊职员
+
+	function Roll(min,max) 
+	{
+		return Math.floor(Math.random()*(max-min))+min;
+	}
+
+	function Name() 
+	{
+		var First_Name = new Array(
+			"赵", "钱", "孙", "李", "周", "吴", "郑", "王", "冯", "陈", 
+			"褚", "卫", "蒋", "沈", "韩", "杨", "朱", "秦", "尤", "许",
+			"何", "吕", "施", "张", "孔", "曹", "严", "华", "金", "魏", 
+			"陶", "姜", "戚", "谢", "邹", "喻", "柏", "水", "窦", "章",
+			"云", "苏", "潘", "葛", "奚", "范", "彭", "郎", "鲁", "韦", 
+			"昌", "马", "苗", "凤", "花", "方", "俞", "任", "袁", "柳",
+			"酆", "鲍", "史", "唐", "费", "廉", "岑", "薛", "雷", "贺", 
+			"倪", "汤", "滕", "殷", "罗", "毕", "郝", "邬", "安", "常",
+			"乐", "于", "时", "傅", "皮", "卞", "齐", "康", "伍", "余", 
+			"元", "卜", "顾", "孟", "平", "黄", "和", "穆", "萧", "尹"
+									);
+		 var Last_Name =  new Array(
+			"子璇", "淼", "国栋", "夫子", "瑞堂", "甜", "敏", "尚", "国贤", "贺祥", "晨涛", 
+			"昊轩", "易轩", "益辰", "益帆", "益冉", "瑾春", "瑾昆", "春齐", "杨", "文昊", 
+			"东东", "雄霖", "浩晨", "熙涵", "溶溶", "冰枫", "欣欣", "宜豪", "欣慧", "建政", 
+			"美欣", "淑慧", "文轩", "文杰", "欣源", "忠林", "榕润", "欣汝", "慧嘉", "新建", 
+			"建林", "亦菲", "林", "冰洁", "佳欣", "涵涵", "禹辰", "淳美", "泽惠", "伟洋", 
+			"涵越", "润丽", "翔", "淑华", "晶莹", "凌晶", "苒溪", "雨涵", "嘉怡", "佳毅", 
+			"子辰", "佳琪", "紫轩", "瑞辰", "昕蕊", "萌", "明远", "欣宜", "泽远", "欣怡", 
+			"佳怡", "佳惠", "晨茜", "晨璐", "运昊", "汝鑫", "淑君", "晶滢", "润莎", "榕汕", 
+			"佳钰", "佳玉", "晓庆", "一鸣", "语晨", "添池", "添昊", "雨泽", "雅晗", "雅涵", 
+			"清妍", "诗悦", "嘉乐", "晨涵", "天赫", "玥傲", "佳昊", "天昊", "萌萌", "若萌"
+									);
+		 var Name = new Array(First_Name[Roll(0,99)],Last_Name[Roll(0,99)]);
+		 return Name.join("");
+	}
+
+	function Display_Main() 
+	{
+		document.getElementById("Site_Level").innerHTML=Site_Level;
+		document.getElementById("money").innerHTML=money;
+		document.getElementById("speed").innerHTML="(+"+speed+")";	
+		document.getElementById("enemy_capacity").innerHTML=enemy_capacity;
+		document.getElementById("staff_capacity").innerHTML=staff_capacity;
+	}
+
+	function Pop_a_Staff() 
+	{
+			var name=Name();
+			var hp=Roll(Site_Level*20-15,Site_Level*20);
+			var salary=Roll(Site_Level*200-150,Site_Level*200);
+			var san=Roll(Site_Level*10-5,Site_Level*10);
+
+			/*staff_now++;
+
+			staffs[staff_now].name=name;
+			staffs[staff_now].hp=hp;
+			staffs[staff_now].salary=salary;
+			staffs[staff_now].san=san;
+			staffs[staff_now].hp_now=hp;
+			staffs[staff_now].san_now=san;
+			写错了*/
+			return {name:name,hp:hp,salary:salary,san:san}
+	}
+
+	function Popup() 
+	{
+
+		if (staff_now>=staff_capacity) 
+		{
+			document.getElementById("content").innerHTML="站点空间不足以招募新的职员。<br>升级站点以招募新的职员。<br>"
+			document.getElementById("mask").style.display="block";
+			document.getElementById("content").style.display="block";
+			var k = document.createElement("button");
+			document.getElementById("content").appendChild(k);
+			k.id="cancel";
+			k.onclick=t;
+			k.style.top="150px";
+			function t() {
+				document.getElementById('content').removeChild(k);Hide()
+			}
+			k.style.position="relative";
+			k.innerHTML="取消";
+			return 0;
+		}
+		else
+		{
+		staff_1 = Pop_a_Staff();
+		staff_2 = Pop_a_Staff();
+		staff_3 = Pop_a_Staff();
+		
+		var cache1 = "staff_1";
+		var cache2 = "staff_2";
+		var cache3 = "staff_3"
+
+		document.getElementById("content").style.height="440px";
+
+		document.getElementById("staff_1").innerHTML='<ul><li><div id="name1"></div></li><li><div id="hp1"></div></li><li><div id="san1"></div></li><li><div id="salary1"></div></li></ul>'
+		document.getElementById("name1").innerHTML = "职员姓名："+staff_1.name;
+		document.getElementById("hp1").innerHTML = "职员HP："+staff_1.hp;
+		document.getElementById("san1").innerHTML = "职员SAN："+staff_1.san;
+		document.getElementById("salary1").innerHTML = "职员收益："+staff_1.salary;
+
+		document.getElementById("staff_2").innerHTML='<ul><li><div id="name2"></div></li><li><div id="hp2"></div></li><li><div id="san2"></div></li><li><div id="salary2"></div></li></ul>'
+		document.getElementById("name2").innerHTML = "职员姓名："+staff_2.name;
+		document.getElementById("hp2").innerHTML = "职员HP："+staff_2.hp;
+		document.getElementById("san2").innerHTML = "职员SAN："+staff_2.san;
+		document.getElementById("salary2").innerHTML = "职员收益："+staff_2.salary;
+
+		document.getElementById("staff_3").innerHTML='<ul><li><div id="name3"></div></li><li><div id="hp3"></div></li><li><div id="san3"></div></li><li><div id="salary3"></div></li></ul>'
+		document.getElementById("name3").innerHTML = "职员姓名："+staff_3.name;
+		document.getElementById("hp3").innerHTML = "职员HP："+staff_3.hp;
+		document.getElementById("san3").innerHTML = "职员SAN："+staff_3.san;
+		document.getElementById("salary3").innerHTML = "职员收益："+staff_3.salary;
+		
+		document.getElementById("yes").style.display="none"
+		document.getElementById("first").innerHTML=staff_1.name;
+		document.getElementById("second").innerHTML=staff_2.name;
+		document.getElementById("third").innerHTML=staff_3.name;
+
+		document.getElementById("mask").style.display="block";
+		document.getElementById("content").style.display="block";
+		}
+	}
+
+	function save_staff(ord) 
+	{
+		switch(ord)
+		{
+			case 1:{staff_name[staff_now]=staff_1.name;staff_hp[staff_now]=staff_1.hp;staff_san[staff_now]=staff_1.san;staff_salary[staff_now]=staff_1.salary;break;}
+			case 2:{staff_name[staff_now]=staff_2.name;staff_hp[staff_now]=staff_2.hp;staff_san[staff_now]=staff_2.san;staff_salary[staff_now]=staff_2.salary;break;}
+			case 3:{staff_name[staff_now]=staff_3.name;staff_hp[staff_now]=staff_3.hp;staff_san[staff_now]=staff_3.san;staff_salary[staff_now]=staff_3.salary;break;}
+			case "sp":{staff_name[staff_now]=staff_sp.name;staff_hp[staff_now]=staff_sp.hp;staff_san[staff_now]=staff_sp.san;staff_salary[staff_now]=staff_sp.salary;break;}
+		}
+		
+
+		var k = document.createElement("ul");
+		document.getElementById("show_staff").appendChild(k);
+		k.id="show_staff_"+staff_now;
+		k = document.createElement("li");
+		document.getElementById("show_staff_"+staff_now).appendChild(k); 
+		k.id  = "show_staff_name_"+staff_now;
+		k =  document.createElement("li");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "show_staff_hp_"+staff_now;
+		k =  document.createElement("li");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "show_staff_san_"+staff_now;
+		k =  document.createElement("li");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "show_staff_salary_"+staff_now;
+		
+		document.getElementById("show_staff_"+staff_now).style.top="30px";
+		document.getElementById("show_staff_"+staff_now).style.width="200px";
+		document.getElementById("show_staff_"+staff_now).style.height="100px";
+		document.getElementById("show_staff_"+staff_now).style.left="50px";
+		document.getElementById("show_staff_"+staff_now).style.float="left";
+
+		document.getElementById("show_staff_name_"+staff_now).innerHTML="职员名称："+staff_name[staff_now];
+		document.getElementById("show_staff_hp_"+staff_now).innerHTML="HP："+staff_hp[staff_now];
+		document.getElementById("show_staff_san_"+staff_now).innerHTML="SAN："+staff_san[staff_now];
+		document.getElementById("show_staff_salary_"+staff_now).innerHTML="收益："+staff_salary[staff_now];
+
+		staff_now++;
+		Hide();
+	}
+
+	function Hide() 
+	{
+		document.getElementById("mask").style.display="none";
+		document.getElementById("content").style.display="none";
+	}
+
+	Display_Main();
+
+	</script>
