@@ -10,7 +10,8 @@
 
 		topic {
 			position: relative;
-			top: 20px;
+			top: 0px;
+			left: 200px;
 		}
 		
 		#content {
@@ -61,7 +62,9 @@
 	
 </head>
 
-	
+<topic>
+	<a style="color: blue;" id="topic_1" onclick="topics(1)">站点职员</a> | <a id="topic_2" onclick="topics(2)">收容物</a> | <a id="topic_3" onclick="topics(3)">科技树</a> | <a id="topic_4" onclick="topics(4)">成就</a><br>
+</topic>
 
 <body>
 
@@ -71,7 +74,7 @@
 		</li>
 		<li>员工数量：<div id="staff_capacity"></div>
 		</li>
-		<li>收容间数量：<div id="enemy_capacity"></div>
+		<li>收容间数量：<div id="scp_capacity"></div>
 		</li>
 		<li>资金：<a id="money"></a><a id="speed" style="color:#7CFC00;">(+0)</a>
 		</li>
@@ -90,8 +93,8 @@
 
 	<div id="content">	
 
-		<div>请从以下三个职员中选取一个作为你的站点员工：
-		<br> </div>
+		<div id="pop_staffs">请从以下三个职员中选取一个作为你的站点员工：
+		<br> 
 		<div id="staff_1" class="staff"> </div>
 		<div id="staff_2" class="staff"> </div>
 		<div id="staff_3" class="staff"> </div>
@@ -101,6 +104,24 @@
 			<button id="second" type="button" onclick="save_staff(2)"> </button>
 			<button id="third" type="button" onclick="save_staff(3)"> </button>
 		</div>
+		</div>
+
+		<div id="pop_scps">请从以下三个异常中选取一个作为新的收容物：
+		<br> 
+
+		<div id="scp_1" class="staff"> </div>
+		<div id="scp_2" class="staff"> </div>
+		<div id="scp_3" class="staff"> </div>
+		
+		<div id="choose_a_scp">
+			<button id="firsts" type="button" onclick="save_scp(1)"> </button>
+			<button id="seconds" type="button" onclick="save_scp(2)"> </button>
+			<button id="thirds" type="button" onclick="save_scp(3)"> </button>
+		</div>
+		</div>
+
+		</div>
+
 		<br>
 
 		<button id="yes" onclick="Hide()">确定</button>
@@ -110,9 +131,10 @@
 
 	
 
-	<button onclick="Popup();">招募一个员工</button>
+	
 	
 	<div id="show_staff">
+		<button style="position:absolute;top:45px;left:220px;"onclick="Popup();">招募一个员工</button>
 	<!--
 		<ul style="position: relative;float: left;left:20px;top:50px;height:100px;width: 120px;display: none;" id="show_staff_1">
 			<li><div id="show_staff_name_1"></div></li>
@@ -123,13 +145,20 @@
 	-->
 	</div>
 
+	<div id="show_scps" style="display:none;">
+		<button style="position:absolute;top:45px;left:220px;"onclick="Popup_a_scp();">抽取一个异常</button>	
+	</div>
+
+	<div id="show_techs" style="display:none;">一些科技</div>
+	<div id="show_honor" style="display:none;">一些成就</div>
+
 </body>
 
 <script type="text/javascript">
 
 	var Site_Level = 1;
 	var money = 5000;
-	var enemy_capacity = 10;
+	var scp_capacity = 10;
 	var staff_capacity = 5;
 	var speed = 200;
 	
@@ -138,18 +167,57 @@
 	var staff_hp = new Array(50);
 	var staff_salary = new Array(50);
 
+	var scp_number = new Array(50);
+	var scp_level = new Array(50);
+	var scp_atk = new Array(50);
+	var scp_chara = new Array(50);
+
 	var staff_now = 0;
+	var scp_now = 0;
 
 	var staff_1;
 	var staff_2;
 	var staff_3;
 	var staff_sp;//特殊职员
 
+	var scp_1;
+	var scp_2;
+	var scp_3;
+	var scp_sp;//特殊scp（特殊的special[笑]）
+
 	function Roll(min,max) 
 	{
 		return Math.floor(Math.random()*(max-min))+min;
 	}
 
+	function topics(n) 
+	{
+		for(var i=1;i<5;i++)
+		{
+			if(i==n) 
+				{
+					document.getElementById("topic_"+i).style.color="blue";
+					switch (i)
+					{
+						case 1:{document.getElementById("show_staff").style.display="block";break;}
+						case 2:{document.getElementById("show_scps").style.display="block";break;}
+						case 3:{document.getElementById("show_techs").style.display="block";break;}
+						case 4:{document.getElementById("show_honor").style.display="block";break;}
+					}
+				}
+			else
+				{
+					document.getElementById("topic_"+i).style.color="black";
+					switch (i)
+					{
+						case 1:{document.getElementById("show_staff").style.display="none";break;}
+						case 2:{document.getElementById("show_scps").style.display="none";break;}
+						case 3:{document.getElementById("show_techs").style.display="none";break;}
+						case 4:{document.getElementById("show_honor").style.display="none";break;}
+					}
+				}
+		}
+	}
 	function Name() 
 	{
 		var First_Name = new Array(
@@ -185,7 +253,7 @@
 		document.getElementById("Site_Level").innerHTML=Site_Level;
 		document.getElementById("money").innerHTML=money;
 		document.getElementById("speed").innerHTML="(+"+speed+")";	
-		document.getElementById("enemy_capacity").innerHTML=enemy_capacity;
+		document.getElementById("scp_capacity").innerHTML=scp_capacity;
 		document.getElementById("staff_capacity").innerHTML=staff_capacity;
 	}
 
@@ -210,7 +278,8 @@
 
 	function Popup() 
 	{
-
+		document.getElementById("pop_scps").style.display="none";
+		document.getElementById("pop_staffs").style.display="block";
 		if (staff_now>=staff_capacity) 
 		{
 			document.getElementById("content").innerHTML="站点空间不足以招募新的职员。<br>升级站点以招募新的职员。<br>"
@@ -295,10 +364,10 @@
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k.id = "show_staff_salary_"+staff_now;
 		
-		document.getElementById("show_staff_"+staff_now).style.top="30px";
-		document.getElementById("show_staff_"+staff_now).style.width="200px";
-		document.getElementById("show_staff_"+staff_now).style.height="100px";
-		document.getElementById("show_staff_"+staff_now).style.left="50px";
+		document.getElementById("show_staff_"+staff_now).style.top="50px";
+		document.getElementById("show_staff_"+staff_now).style.width="150px";
+		document.getElementById("show_staff_"+staff_now).style.height="90px";
+		document.getElementById("show_staff_"+staff_now).style.left="30px";
 		document.getElementById("show_staff_"+staff_now).style.float="left";
 
 		document.getElementById("show_staff_name_"+staff_now).innerHTML="职员名称："+staff_name[staff_now];
@@ -310,6 +379,98 @@
 		Hide();
 	}
 
+	function give_a_level() 
+	{
+		var i=Roll(1,4);
+		switch (i)
+		{
+			case 1:{return "Safe";break;}
+			case 2:{return "Euclid";break;}
+			case 3:{return "Keter";break;} 
+		}
+	}
+
+	function give_atk(level) 
+	{
+		switch (level)
+		{
+			case "Safe":{return Roll(Site_Level*5-5,Site_Level*5);break;}
+			case "Euclid":{return Roll(Site_Level*20-20,Site_Level*20);break;}
+			case "Keter":{return Roll(Site_Level*50-50,Site_Level*50);break;}
+		}
+	}
+
+	function Pop_a_SCP() 
+	{
+			var num=Roll(2,999);
+			var level=give_a_level();
+			var atk=give_atk(level);
+			var chara=Roll(100,999);
+
+			return {num:num,level:level,atk:atk,chara:chara}
+	}
+
+	function Popup_a_scp() 
+	{
+		document.getElementById("pop_staffs").style.display="none";
+		document.getElementById("pop_scps").style.display="block";
+		if (staff_now>=staff_capacity) 
+		{
+			document.getElementById("content").innerHTML="站点空间不足以收容新的异常。<br>升级站点以拓展收容间。<br>"
+			document.getElementById("mask").style.display="block";
+			document.getElementById("content").style.display="block";
+			var k = document.createElement("button");
+			document.getElementById("content").appendChild(k);
+			k.id="cancel";
+			k.onclick=t;
+			k.style.top="150px";
+			function t() {
+				document.getElementById('content').removeChild(k);Hide()
+			}
+			k.style.position="relative";
+			k.innerHTML="取消";
+			return 0;
+		}
+		else
+		{
+		scp_1 = Pop_a_SCP();
+		scp_2 = Pop_a_SCP();
+		scp_3 = Pop_a_SCP();
+
+		document.getElementById("content").style.height="440px";
+
+		document.getElementById("scp_1").innerHTML='<ul><li><div id="num1"></div></li><li><div id="level1"></div></li><li><div id="atk1"></div></li><li><div id="chara1"></div></li></ul>'
+		document.getElementById("num1").innerHTML = "项目编号：SCP-AN-"+scp_1.num;
+		document.getElementById("level1").innerHTML = "项目等级："+scp_1.level;
+		document.getElementById("atk1").innerHTML = "ATK："+scp_1.atk;
+		//document.getElementById("salary1").innerHTML = "项目特性："+staff_1.salary;
+
+		document.getElementById("scp_2").innerHTML='<ul><li><div id="num2"></div></li><li><div id="level2"></div></li><li><div id="atk2"></div></li><li><div id="chara2"></div></li></ul>'
+		document.getElementById("num2").innerHTML = "项目编号：SCP-AN-"+scp_2.num;
+		document.getElementById("level2").innerHTML = "项目等级："+scp_2.level;
+		document.getElementById("atk2").innerHTML = "ATK："+scp_2.atk;
+		//document.getElementById("salary2").innerHTML = "职员收益："+staff_2.salary;
+
+		document.getElementById("scp_3").innerHTML='<ul><li><div id="num3"></div></li><li><div id="level3"></div></li><li><div id="atk3"></div></li><li><div id="chara3"></div></li></ul>'
+		document.getElementById("num3").innerHTML = "项目编号：SCP-AN-"+scp_3.num;
+		document.getElementById("level3").innerHTML = "项目等级："+scp_3.level;
+		document.getElementById("atk3").innerHTML = "ATK："+scp_3.atk;
+		//document.getElementById("salary3").innerHTML = "职员收益："+staff_3.salary;
+		
+		document.getElementById("yes").style.display="none"
+		document.getElementById("firsts").innerHTML="SCP-AN-"+scp_1.num;
+		document.getElementById("seconds").innerHTML="SCP-AN-"+scp_2.num;
+		document.getElementById("thirds").innerHTML="SCP-AN-"+scp_3.num;
+
+		document.getElementById("mask").style.display="block";
+		document.getElementById("content").style.display="block";
+		}
+	}
+
+	function save_scp() 
+	{
+		Hide();
+	}
 	function Hide() 
 	{
 		document.getElementById("mask").style.display="none";
