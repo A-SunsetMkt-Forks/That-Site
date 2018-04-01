@@ -1,6 +1,5 @@
 <head>
-	<style type="text/css">
-	li{ margin:0; padding:0}
+	<style type="text/css">	
 		ul {
 			position: relative;
 			border-style: solid;
@@ -145,7 +144,7 @@
 	-->
 	</div>
 
-	<div id="show_scps" style="display:none;">
+	<div id="show_scp" style="display:none;">
 		<button style="position:absolute;top:45px;left:220px;"onclick="Popup_a_scp();">抽取一个异常</button>	
 	</div>
 
@@ -200,7 +199,7 @@
 					switch (i)
 					{
 						case 1:{document.getElementById("show_staff").style.display="block";break;}
-						case 2:{document.getElementById("show_scps").style.display="block";break;}
+						case 2:{document.getElementById("show_scp").style.display="block";break;}
 						case 3:{document.getElementById("show_techs").style.display="block";break;}
 						case 4:{document.getElementById("show_honor").style.display="block";break;}
 					}
@@ -211,7 +210,7 @@
 					switch (i)
 					{
 						case 1:{document.getElementById("show_staff").style.display="none";break;}
-						case 2:{document.getElementById("show_scps").style.display="none";break;}
+						case 2:{document.getElementById("show_scp").style.display="none";break;}
 						case 3:{document.getElementById("show_techs").style.display="none";break;}
 						case 4:{document.getElementById("show_honor").style.display="none";break;}
 					}
@@ -467,10 +466,49 @@
 		}
 	}
 
-	function save_scp() 
+		function save_scp(ord) 
 	{
+		switch(ord)
+		{
+			case 1:{scp_number[scp_now]=scp_1.num;scp_level[scp_now]=scp_1.level;scp_atk[scp_now]=scp_1.atk;scp_chara[scp_now]=scp_1.chara;break;}
+			case 2:{scp_number[scp_now]=scp_2.num;scp_level[scp_now]=scp_2.level;scp_atk[scp_now]=scp_2.atk;scp_chara[scp_now]=scp_2.chara;break;}
+			case 3:{scp_number[scp_now]=scp_3.num;scp_level[scp_now]=scp_3.level;scp_atk[scp_now]=scp_3.atk;scp_chara[scp_now]=scp_3.chara;break;}
+			case "sp":{scp_number[scp_now]=scp_sp.number;scp_level[scp_now]=scp_sp.level;scp_atk[scp_now]=scp_sp.atk;scp_chara[scp_now]=scp_sp.chara;break;}
+		}
+		
+
+		var k = document.createElement("ul");
+		document.getElementById("show_scp").appendChild(k);
+		k.id="show_scp_"+scp_now;
+		k = document.createElement("li");
+		document.getElementById("show_scp_"+scp_now).appendChild(k); 
+		k.id  = "show_scp_number_"+scp_now;
+		k =  document.createElement("li");
+		document.getElementById("show_scp_"+scp_now).appendChild(k);
+		k.id = "show_scp_level_"+scp_now;
+		k =  document.createElement("li");
+		document.getElementById("show_scp_"+scp_now).appendChild(k);
+		k.id = "show_scp_atk_"+scp_now;
+		k =  document.createElement("li");
+		document.getElementById("show_scp_"+scp_now).appendChild(k);
+		k.id = "show_scp_chara_"+scp_now;
+		
+		document.getElementById("show_scp_"+scp_now).style.top="50px";
+		document.getElementById("show_scp_"+scp_now).style.width="200px";
+		document.getElementById("show_scp_"+scp_now).style.height="100px";
+		document.getElementById("show_scp_"+scp_now).style.left="30px";
+		document.getElementById("show_scp_"+scp_now).style.float="left";
+
+		document.getElementById("show_scp_number_"+scp_now).innerHTML="项目编号：SCP-AB-"+scp_number[scp_now];
+		document.getElementById("show_scp_level_"+scp_now).innerHTML="项目等级："+scp_level[scp_now];
+		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATF："+scp_atk[scp_now];
+		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+scp_chara[scp_now];
+
+		scp_now++;
+
 		Hide();
 	}
+
 	function Hide() 
 	{
 		document.getElementById("mask").style.display="none";
