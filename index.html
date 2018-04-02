@@ -66,6 +66,7 @@
 </topic>
 
 <body>
+	
 
 	<ul style="float: left;">
 		<li>站点名称：<div id="Site_name"> </div></li>
@@ -73,7 +74,7 @@
 		</li>
 		<li>员工数量：<div id="staff_capacity"></div>
 		</li>
-		<li>收容间数量：<div id="scp_capacity"></div>
+		<li>异常数量：<div id="scp_capacity"></div>
 		</li>
 		<li>资金：<a id="money"></a><a id="speed" style="color:#7CFC00;">(+0)</a>
 		</li>
@@ -81,6 +82,7 @@
 	<!--
 	基本信息 应该不会往里加东西？所以就直接这么写了
 	-->
+	
 	<topic>
 		
 	</topic>
@@ -91,7 +93,8 @@
 	<div id="mask"></div>
 
 	<div id="content">	
-
+		<div id="remind" style="top:400px;"></div>
+	
 		<div id="pop_staffs">请从以下三个职员中选取一个作为你的站点员工：
 		<br> 
 		<div id="staff_1" class="staff"> </div>
@@ -121,8 +124,9 @@
 
 		<br>
 
-		<button id="yes" onclick="Hide()">确定</button>
+		<button id="yes" onclick="Hide()" style="display: none;">确定</button>
 		<button id="no" onclick="Hide()">取消</button>
+
 		</div>
 
 
@@ -153,6 +157,8 @@
 
 </body>
 
+<ul style="top: 180px;width: 140px;position: absolute;height: 1000px;border-color: white;">
+</ul>
 <script type="text/javascript">
 
 	var Site_Level = 1;
@@ -165,6 +171,9 @@
 	var staff_san = new Array(50);
 	var staff_hp = new Array(50);
 	var staff_salary = new Array(50);
+	var staff_hp_now = new Array(50);
+	var staff_san_now = new Array(50);
+	var staff_level = new Array(50);
 
 	var scp_number = new Array(50);
 	var scp_level = new Array(50);
@@ -183,6 +192,8 @@
 	var scp_2;
 	var scp_3;
 	var scp_sp;//特殊scp（特殊的special[笑]）
+
+	var speed_muti = 1;
 
 	function Roll(min,max) 
 	{
@@ -252,8 +263,8 @@
 		document.getElementById("Site_Level").innerHTML=Site_Level;
 		document.getElementById("money").innerHTML=money;
 		document.getElementById("speed").innerHTML="(+"+speed+")";	
-		document.getElementById("scp_capacity").innerHTML=scp_capacity;
-		document.getElementById("staff_capacity").innerHTML=staff_capacity;
+		document.getElementById("scp_capacity").innerHTML=show_scp_num();
+		document.getElementById("staff_capacity").innerHTML=show_staff_number();
 	}
 
 	function Pop_a_Staff() 
@@ -275,26 +286,44 @@
 			return {name:name,hp:hp,salary:salary,san:san}
 	}
 
+	function Show_HP(ord) 
+	{
+		return staff_hp_now[ord]+"/"+staff_hp[ord];
+	}
+
+	function Show_SAN(ord) 
+	{
+		return staff_san_now[ord]+"/"+staff_san[ord];
+	}
+
+	function show_staff_number(ord) 
+	{
+		return staff_now+"/"+staff_capacity;
+	}
+
+	function show_scp_num(ord) 
+	{
+		return scp_now+"/"+scp_capacity;
+	}
+
 	function Popup() 
 	{
 		document.getElementById("pop_scps").style.display="none";
 		document.getElementById("pop_staffs").style.display="block";
 		if (staff_now>=staff_capacity) 
 		{
-			document.getElementById("content").innerHTML="站点空间不足以招募新的职员。<br>升级站点以招募新的职员。<br>"
+			document.getElementById("content").style.height="200px";
+			document.getElementById("remind").style.display="block";
+			document.getElementById("pop_scps").style.display="none";
+			document.getElementById("pop_staffs").style.display="none";
+			document.getElementById("remind").innerHTML="<br><br>站点空间不足以招募新的职员。<br>升级站点以招募新的职员。<br><br><br>"
 			document.getElementById("mask").style.display="block";
 			document.getElementById("content").style.display="block";
-			var k = document.createElement("button");
-			document.getElementById("content").appendChild(k);
-			k.id="cancel";
-			k.onclick=t;
-			k.style.top="150px";
 			function t() {
-				document.getElementById('content').removeChild(k);Hide()
+				Hide();
+				document.getElementById("remind").style.display="none";
 			}
-			k.style.position="relative";
-			k.innerHTML="取消";
-			return 0;
+			document.getElementById("no").onclick=t;
 		}
 		else
 		{
@@ -340,10 +369,10 @@
 	{
 		switch(ord)
 		{
-			case 1:{staff_name[staff_now]=staff_1.name;staff_hp[staff_now]=staff_1.hp;staff_san[staff_now]=staff_1.san;staff_salary[staff_now]=staff_1.salary;break;}
-			case 2:{staff_name[staff_now]=staff_2.name;staff_hp[staff_now]=staff_2.hp;staff_san[staff_now]=staff_2.san;staff_salary[staff_now]=staff_2.salary;break;}
-			case 3:{staff_name[staff_now]=staff_3.name;staff_hp[staff_now]=staff_3.hp;staff_san[staff_now]=staff_3.san;staff_salary[staff_now]=staff_3.salary;break;}
-			case "sp":{staff_name[staff_now]=staff_sp.name;staff_hp[staff_now]=staff_sp.hp;staff_san[staff_now]=staff_sp.san;staff_salary[staff_now]=staff_sp.salary;break;}
+			case 1:{staff_name[staff_now]=staff_1.name;staff_hp[staff_now]=staff_1.hp;staff_san[staff_now]=staff_1.san;staff_salary[staff_now]=staff_1.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
+			case 2:{staff_name[staff_now]=staff_2.name;staff_hp[staff_now]=staff_2.hp;staff_san[staff_now]=staff_2.san;staff_salary[staff_now]=staff_2.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
+			case 3:{staff_name[staff_now]=staff_3.name;staff_hp[staff_now]=staff_3.hp;staff_san[staff_now]=staff_3.san;staff_salary[staff_now]=staff_3.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
+			case "sp":{staff_name[staff_now]=staff_sp.name;staff_hp[staff_now]=staff_sp.hp;staff_san[staff_now]=staff_sp.san;staff_salary[staff_now]=staff_sp.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
 		}
 		
 
@@ -355,6 +384,9 @@
 		k.id  = "show_staff_name_"+staff_now;
 		k =  document.createElement("li");
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "show_staff_level_"+staff_now;
+		k =  document.createElement("li");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k.id = "show_staff_hp_"+staff_now;
 		k =  document.createElement("li");
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
@@ -362,20 +394,44 @@
 		k =  document.createElement("li");
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k.id = "show_staff_salary_"+staff_now;
+		k = document.createElement("button");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "Level_up_"+staff_now;
+		k.innerHTML = "升级";
+		var u=staff_now;
+		function t(){level_up(u);}
+		k.onclick = t;
 		
 		document.getElementById("show_staff_"+staff_now).style.top="50px";
 		document.getElementById("show_staff_"+staff_now).style.width="150px";
-		document.getElementById("show_staff_"+staff_now).style.height="90px";
+		document.getElementById("show_staff_"+staff_now).style.height="140px";
 		document.getElementById("show_staff_"+staff_now).style.left="30px";
 		document.getElementById("show_staff_"+staff_now).style.float="left";
 
-		document.getElementById("show_staff_name_"+staff_now).innerHTML="职员名称："+staff_name[staff_now];
-		document.getElementById("show_staff_hp_"+staff_now).innerHTML="HP："+staff_hp[staff_now];
-		document.getElementById("show_staff_san_"+staff_now).innerHTML="SAN："+staff_san[staff_now];
-		document.getElementById("show_staff_salary_"+staff_now).innerHTML="收益："+staff_salary[staff_now];
+		SHow_A_Staff(staff_now);
 
+		
 		staff_now++;
+		Display_Main();
 		Hide();
+	}
+
+	function level_up(ord) 
+	{
+		staff_level[ord]++;
+		staff_hp[ord]=staff_hp[ord]+Roll(staff_level[ord]*8-5,staff_level[ord]*8);
+		staff_san[ord]+=Roll(staff_level[ord]*8-5,staff_level[ord]*8);
+		staff_salary[ord]+=Roll(staff_level[ord]*50-5,staff_level[ord]*50);
+		SHow_A_Staff(ord);
+	}
+
+	function SHow_A_Staff(ord) 
+	{
+		document.getElementById("show_staff_name_"+ord).innerHTML="职员名称："+staff_name[ord];
+		document.getElementById("show_staff_level_"+ord).innerHTML="职员等级："+staff_level[ord];
+		document.getElementById("show_staff_hp_"+ord).innerHTML="HP："+Show_HP(ord);
+		document.getElementById("show_staff_san_"+ord).innerHTML="SAN："+Show_SAN(ord);
+		document.getElementById("show_staff_salary_"+ord).innerHTML="收益："+staff_salary[ord];
 	}
 
 	function give_a_level() 
@@ -413,22 +469,20 @@
 	{
 		document.getElementById("pop_staffs").style.display="none";
 		document.getElementById("pop_scps").style.display="block";
-		if (staff_now>=staff_capacity) 
+		if (scp_now>=scp_capacity) 
 		{
-			document.getElementById("content").innerHTML="站点空间不足以收容新的异常。<br>升级站点以拓展收容间。<br>"
+			document.getElementById("content").style.height="200px";
+			document.getElementById("remind").style.display="block";
+			document.getElementById("pop_scps").style.display="none";
+			document.getElementById("pop_staffs").style.display="none";
+			document.getElementById("remind").innerHTML="<br><br>站点空间不足以收容新的异常。<br>升级站点以拓展收容间。<br><br>"
 			document.getElementById("mask").style.display="block";
 			document.getElementById("content").style.display="block";
-			var k = document.createElement("button");
-			document.getElementById("content").appendChild(k);
-			k.id="cancel";
-			k.onclick=t;
-			k.style.top="150px";
 			function t() {
-				document.getElementById('content').removeChild(k);Hide()
+				Hide();
+				document.getElementById("remind").style.display="none";
 			}
-			k.style.position="relative";
-			k.innerHTML="取消";
-			return 0;
+			document.getElementById("no").onclick=t;
 		}
 		else
 		{
@@ -503,9 +557,9 @@
 		document.getElementById("show_scp_level_"+scp_now).innerHTML="项目等级："+scp_level[scp_now];
 		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATF："+scp_atk[scp_now];
 		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+scp_chara[scp_now];
-
+		
 		scp_now++;
-
+		Display_Main();
 		Hide();
 	}
 
