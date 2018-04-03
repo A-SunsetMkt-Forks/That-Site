@@ -194,6 +194,7 @@
 	var scp_sp;//特殊scp（特殊的special[笑]）
 
 	var speed_muti = 1;
+	var damage_muti = 1;
 
 	function Roll(min,max) 
 	{
@@ -228,6 +229,7 @@
 				}
 		}
 	}
+
 	function Name() 
 	{
 		var First_Name = new Array(
@@ -256,6 +258,17 @@
 									);
 		 var Name = new Array(First_Name[Roll(0,99)],Last_Name[Roll(0,99)]);
 		 return Name.join("");
+	}
+
+	function descirbe(num) 
+	{
+		var One  = new Array("有翼且","敏捷且","令人发狂且","湿漉漉且","可变形且","充满敌意且","透明且","无定形且","博学且","随身携带武器且");
+		var Two  = new Array("闪亮的","虚弱的","宗教性的","什么都不是的","被黑雾笼罩着的","吵闹的","温柔的","狡猾的","沉默的","打瞌睡的");
+		var Three  = new Array("机械仿生人","模因","昆虫","人型生物","犬科动物","龙","恶魔","真菌","植物","鸟类");
+		var first=parseInt(num/100);
+		var second=parseInt((num%100)/10);
+		var	third=parseInt(num%10);
+		return One[first]+Two[second]+Three[third];
 	}
 
 	function Display_Main() 
@@ -305,6 +318,11 @@
 	{
 		return scp_now+"/"+scp_capacity;
 	}
+
+	function show_scps_num(num) 
+	{  
+ 		return ("000"+num).substr(-3);  
+	}  
 
 	function Popup() 
 	{
@@ -414,6 +432,7 @@
 		staff_now++;
 		Display_Main();
 		Hide();
+		count();
 	}
 
 	function level_up(ord) 
@@ -423,6 +442,7 @@
 		staff_san[ord]+=Roll(staff_level[ord]*8-5,staff_level[ord]*8);
 		staff_salary[ord]+=Roll(staff_level[ord]*50-5,staff_level[ord]*50);
 		SHow_A_Staff(ord);
+		count();
 	}
 
 	function SHow_A_Staff(ord) 
@@ -493,27 +513,27 @@
 		document.getElementById("content").style.height="440px";
 
 		document.getElementById("scp_1").innerHTML='<ul><li><div id="num1"></div></li><li><div id="level1"></div></li><li><div id="atk1"></div></li><li><div id="chara1"></div></li></ul>'
-		document.getElementById("num1").innerHTML = "项目编号：SCP-AN-"+scp_1.num;
+		document.getElementById("num1").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_1.num);
 		document.getElementById("level1").innerHTML = "项目等级："+scp_1.level;
 		document.getElementById("atk1").innerHTML = "ATK："+scp_1.atk;
-		//document.getElementById("salary1").innerHTML = "项目特性："+staff_1.salary;
+		document.getElementById("chara1").innerHTML = "描述："+descirbe(scp_1.chara);
 
 		document.getElementById("scp_2").innerHTML='<ul><li><div id="num2"></div></li><li><div id="level2"></div></li><li><div id="atk2"></div></li><li><div id="chara2"></div></li></ul>'
-		document.getElementById("num2").innerHTML = "项目编号：SCP-AN-"+scp_2.num;
+		document.getElementById("num2").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_2.num);
 		document.getElementById("level2").innerHTML = "项目等级："+scp_2.level;
 		document.getElementById("atk2").innerHTML = "ATK："+scp_2.atk;
-		//document.getElementById("salary2").innerHTML = "职员收益："+staff_2.salary;
+		document.getElementById("chara2").innerHTML = "描述："+descirbe(scp_2.chara);
 
 		document.getElementById("scp_3").innerHTML='<ul><li><div id="num3"></div></li><li><div id="level3"></div></li><li><div id="atk3"></div></li><li><div id="chara3"></div></li></ul>'
-		document.getElementById("num3").innerHTML = "项目编号：SCP-AN-"+scp_3.num;
+		document.getElementById("num3").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_3.num);
 		document.getElementById("level3").innerHTML = "项目等级："+scp_3.level;
 		document.getElementById("atk3").innerHTML = "ATK："+scp_3.atk;
-		//document.getElementById("salary3").innerHTML = "职员收益："+staff_3.salary;
+		document.getElementById("chara3").innerHTML = "描述："+descirbe(scp_3.chara);
 		
 		document.getElementById("yes").style.display="none"
-		document.getElementById("firsts").innerHTML="SCP-AN-"+scp_1.num;
-		document.getElementById("seconds").innerHTML="SCP-AN-"+scp_2.num;
-		document.getElementById("thirds").innerHTML="SCP-AN-"+scp_3.num;
+		document.getElementById("firsts").innerHTML="SCP-AB-"+show_scps_num(scp_1.num);
+		document.getElementById("seconds").innerHTML="SCP-AB-"+show_scps_num(scp_2.num);
+		document.getElementById("thirds").innerHTML="SCP-AB-"+show_scps_num(scp_3.num);
 
 		document.getElementById("mask").style.display="block";
 		document.getElementById("content").style.display="block";
@@ -549,14 +569,14 @@
 		
 		document.getElementById("show_scp_"+scp_now).style.top="50px";
 		document.getElementById("show_scp_"+scp_now).style.width="200px";
-		document.getElementById("show_scp_"+scp_now).style.height="100px";
+		document.getElementById("show_scp_"+scp_now).style.height="110px";
 		document.getElementById("show_scp_"+scp_now).style.left="30px";
 		document.getElementById("show_scp_"+scp_now).style.float="left";
 
-		document.getElementById("show_scp_number_"+scp_now).innerHTML="项目编号：SCP-AB-"+scp_number[scp_now];
+		document.getElementById("show_scp_number_"+scp_now).innerHTML="项目编号：SCP-AB-"+show_scps_num(scp_number[scp_now]);
 		document.getElementById("show_scp_level_"+scp_now).innerHTML="项目等级："+scp_level[scp_now];
-		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATF："+scp_atk[scp_now];
-		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+scp_chara[scp_now];
+		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATK："+scp_atk[scp_now];
+		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+descirbe(scp_chara[scp_now]);
 		
 		scp_now++;
 		Display_Main();
@@ -569,6 +589,17 @@
 		document.getElementById("content").style.display="none";
 	}
 
+	function count() 
+	{
+		var ex_speed = 0;
+		for (var i=0;i<staff_now;i++) 
+			ex_speed+=staff_salary[i];
+		speed+=ex_speed*speed_muti;
+		Display_Main();
+	}
+
+
+	
 	Display_Main();
 
 	</script>
