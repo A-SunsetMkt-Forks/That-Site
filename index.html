@@ -5,6 +5,7 @@
 			border-style: solid;
 			border-color: black;
 			border-width: thin;
+			
 		}
 
 		topic {
@@ -168,6 +169,7 @@
 	var speed = 200;
 	
 	var staff_name = new Array(50);
+	staff_name.fill(0);
 	var staff_san = new Array(50);
 	var staff_hp = new Array(50);
 	var staff_salary = new Array(50);
@@ -176,9 +178,15 @@
 	var staff_level = new Array(50);
 
 	var scp_number = new Array(50);
+	scp_number.fill(0);
 	var scp_level = new Array(50);
 	var scp_atk = new Array(50);
 	var scp_chara = new Array(50);
+
+	var staff_scp = new Array(50);
+	staff_scp.fill(0);
+	var scp_staff = new Array(50);
+	scp_staff.fill(0);
 
 	var staff_now = 0;
 	var scp_now = 0;
@@ -324,6 +332,23 @@
  		return ("000"+num).substr(-3);  
 	}  
 
+	function show_state(type,ord) 
+	{
+		if (type=="staff") 
+		{
+			if(staff_scp[ord]==0) return "休息中。";
+			else
+				if(staff_scp[ord]<0) return "维修SCP-AB-"+(staff_scp[ord]*(-1))+"的收容间中。";
+			else
+				return "完成对SCP-AB-"+scp_number[staff_scp[ord]-1]+"的收容工作中。";
+		}
+		else
+		{
+			if(scp_staff[ord]==0) return "无";
+			else return staff_name[scp_staff[ord]];
+		}
+	}
+
 	function Popup() 
 	{
 		document.getElementById("pop_scps").style.display="none";
@@ -412,6 +437,9 @@
 		k =  document.createElement("li");
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k.id = "show_staff_salary_"+staff_now;
+		k = document.createElement("li");
+		k.id = "show_staff_state_"+staff_now;
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k = document.createElement("button");
 		document.getElementById("show_staff_"+staff_now).appendChild(k);
 		k.id = "Level_up_"+staff_now;
@@ -419,12 +447,30 @@
 		var u=staff_now;
 		function t(){level_up(u);}
 		k.onclick = t;
-		
+		k = document.createElement("button");
+		document.getElementById("show_staff_"+staff_now).appendChild(k);
+		k.id = "Work_"+staff_now;
+		k.innerHTML = "工作安排";
+		var w=staff_now;
+		function s(){Change_Work(w);}
+		k.onclick = s;
+
 		document.getElementById("show_staff_"+staff_now).style.top="50px";
 		document.getElementById("show_staff_"+staff_now).style.width="150px";
-		document.getElementById("show_staff_"+staff_now).style.height="140px";
+		document.getElementById("show_staff_"+staff_now).style.height="180px";
 		document.getElementById("show_staff_"+staff_now).style.left="30px";
 		document.getElementById("show_staff_"+staff_now).style.float="left";
+
+		document.getElementById("Level_up_"+staff_now).style.top="10px";
+		document.getElementById("Level_up_"+staff_now).style.width="90px";
+		document.getElementById("Level_up_"+staff_now).style.left="-38px";
+		document.getElementById("Level_up_"+staff_now).style.position="relative";
+
+		document.getElementById("Work_"+staff_now).style.top="-25px";
+		document.getElementById("Work_"+staff_now).style.right="-58px";
+		document.getElementById("Work_"+staff_now).style.width="90px";
+		document.getElementById("Work_"+staff_now).style.position="relative";
+
 
 		SHow_A_Staff(staff_now);
 
@@ -445,6 +491,36 @@
 		count();
 	}
 
+	function Change_Work(ord) 
+	{
+		document.getElementById("content").style.display="block";
+		document.getElementById("mask").style.display="block";
+		document.getElementById("content").innerHTML="<br><br>"+staff_name[ord]+"的工作是:<br><br>"
+		var u = document.createElement("li");
+		u.innerHTML="研究    "
+		document.getElementById("content").appendChild(u);
+		var s = document.createElement("select");
+		u.appendChild(s);
+		s.id="Which_To_Study"
+		for (var i=0;i<scp_now;i++) 
+			if(scp_number[i]!=0)
+			s.add(new Option("SCP-AB-"+scp_number[i],i));
+		s = document.createElement("button");
+		u.appendChild(s);
+		s.innerHTML="确定";
+		function a() 
+		{
+			var index = document.getElementById("Which_To_Study").selectedIndex;
+			if(scp_number[index]!=0)
+				staff_scp[ord]=index+1;
+			Hide();
+			SHow_A_Staff(ord);
+			document.getElementById("show_staff_"+ord).style.height="230px";
+		}
+		s.onclick=a;
+
+	}
+
 	function SHow_A_Staff(ord) 
 	{
 		document.getElementById("show_staff_name_"+ord).innerHTML="职员名称："+staff_name[ord];
@@ -452,6 +528,7 @@
 		document.getElementById("show_staff_hp_"+ord).innerHTML="HP："+Show_HP(ord);
 		document.getElementById("show_staff_san_"+ord).innerHTML="SAN："+Show_SAN(ord);
 		document.getElementById("show_staff_salary_"+ord).innerHTML="收益："+staff_salary[ord];
+		document.getElementById("show_staff_state_"+ord).innerHTML="状态："+show_state("staff",ord);
 	}
 
 	function give_a_level() 
