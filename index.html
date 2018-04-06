@@ -112,15 +112,22 @@
 		<div id="pop_scps">请从以下三个异常中选取一个作为新的收容物：
 		<br> 
 
-		<div id="scp_1" class="staff"> </div>
-		<div id="scp_2" class="staff"> </div>
-		<div id="scp_3" class="staff"> </div>
+			<div id="scp_1" class="staff"> </div>
+			<div id="scp_2" class="staff"> </div>
+			<div id="scp_3" class="staff"> </div>
 		
-		<div id="choose_a_scp">
-			<button id="firsts" type="button" onclick="save_scp(1)"> </button>
-			<button id="seconds" type="button" onclick="save_scp(2)"> </button>
-			<button id="thirds" type="button" onclick="save_scp(3)"> </button>
+			<div id="choose_a_scp">
+				<button id="firsts" type="button" onclick="save_scp(1)"> </button>
+				<button id="seconds" type="button" onclick="save_scp(2)"> </button>
+				<button id="thirds" type="button" onclick="save_scp(3)"> </button>
+			</div>
 		</div>
+
+		<div id="Work_Changing">
+			<div id="who"></div>
+				<li id="Studying"> </li>
+				<li id="Fixing"> </li>
+				<li id="Resting"> </li>
 		</div>
 
 		<br>
@@ -128,14 +135,7 @@
 		<button id="yes" onclick="Hide()" style="display: none;">确定</button>
 		<button id="no" onclick="Hide()">取消</button>
 
-		</div>
-
-
 	</div>
-
-	
-
-	
 	
 	<div id="show_staff">
 		<button style="position:absolute;top:45px;left:220px;"onclick="Popup();">招募一个员工</button>
@@ -170,7 +170,7 @@
 	var money = 5000;
 	var scp_capacity = 10;
 	var staff_capacity = 5;
-	var speed = 200;
+	var speed = 500;
 	
 	var staffs=[];
 	function new_staff(staff,work)
@@ -185,6 +185,7 @@
 		this.skill=0;
 		this.inc=staff.inc;
 		this.work=work;
+		this.counted_flag=0;
 	}
 
 	var scps=[];
@@ -297,7 +298,7 @@
 	{
 		document.getElementById("Site_Level").innerHTML=Site_Level;
 		document.getElementById("money").innerHTML=money;
-		document.getElementById("speed").innerHTML="(+"+speed+")";	
+		document.getElementById("speed").innerHTML="(+"+Math.floor(speed)+")";	
 		document.getElementById("scp_capacity").innerHTML=show_scp_num();
 		document.getElementById("staff_capacity").innerHTML=show_staff_number();
 	}
@@ -364,6 +365,7 @@
 	{
 		document.getElementById("pop_scps").style.display="none";
 		document.getElementById("pop_staffs").style.display="block";
+		document.getElementById("Work_Changing").style.display="none";
 		if (staff_now>=staff_capacity) 
 		{
 			document.getElementById("content").style.height="200px";
@@ -496,13 +498,14 @@
 	function level_up(ord) 
 	{
 		staffs[ord].level++;
-		staffs[ord].HP+=Roll(staffs[ord].level*8-5,staffs[ord].level*8);
-		staffs[ord].SAN+=Roll(staffs[ord].level*8-5,staffs[ord].level*8);
-		staffs[ord].salary+=Roll(staffs[ord].level*20-5,staffs[ord].level*20);
+		staffs[ord].HP+=Roll(staffs[ord].level*10-5,staffs[ord].level*8);
+		staffs[ord].SAN+=Roll(staffs[ord].level*10-5,staffs[ord].level*10);
+		staffs[ord].salary+=Roll(staffs[ord].level*10-5,staffs[ord].level*10);
 		staffs[ord].HP_now+=10;
 		staffs[ord].SAN_now+=10;
-		staffs[ord].inc++;
+		staffs[ord].inc+=staffs[ord].level;
 		SHow_A_Staff(ord);
+		staffs[ord].counted_flag=0;
 		count();
 	}
 
@@ -510,28 +513,33 @@
 	{
 		document.getElementById("content").style.display="block";
 		document.getElementById("mask").style.display="block";
-		document.getElementById("content").innerHTML="<br><br>"+staffs[ord].name+"的工作是:<br><br>"
-		var u = document.createElement("li");
-		u.innerHTML="研究    "
-		document.getElementById("content").appendChild(u);
+		document.getElementById("pop_staffs").style.display="none";
+		document.getElementById("pop_scps").style.display="none";
+		document.getElementById("Work_Changing").style.display="block";
+		document.getElementById("who").innerHTML="<br><br>"+staffs[ord].name+"的工作是:<br><br>"
+		document.getElementById("Studying").innerHTML="研究："
 		var s = document.createElement("select");
-		u.appendChild(s);
+		document.getElementById("Studying").appendChild(s);
 		s.id="Which_To_Study"
 		for (var i=0;i<scp_now;i++) 
 			if(scps[i].num!=0)
 			s.add(new Option("SCP-AB-"+scps[i].num,i));
 		s = document.createElement("button");
-		u.appendChild(s);
+		document.getElementById("Studying").appendChild(s);
 		s.innerHTML="确定";
 		function a() 
 		{
 			var index = document.getElementById("Which_To_Study").selectedIndex;
-			if(scps[index].num!=0)
+			if(scps[index].num!=0&&staffs[ord].work!=(index+1))
+			{
 				staffs[ord].work=index+1;
+				staffs[ord].counted_flag=0;
+				count();
+			}
 			Hide();
 			SHow_A_Staff(ord);
 			document.getElementById("show_staff_"+ord).style.height="230px";
-			count();
+			
 		}
 		s.onclick=a;
 	}
@@ -592,6 +600,7 @@
 	{
 		document.getElementById("pop_staffs").style.display="none";
 		document.getElementById("pop_scps").style.display="block";
+		document.getElementById("Work_Changing").style.display="none";
 		if (scp_now>=scp_capacity) 
 		{
 			document.getElementById("content").style.height="200px";
@@ -704,9 +713,10 @@
 		var ex_speed = 0;
 		for (var i=0;i<staff_now;i++) 
 			{
-				if(staffs[i].work>0)
+				if(staffs[i].work>0&&staffs[i].counted_flag==0)
 				ex_speed+=staffs[i].inc*scps[staffs[i].work-1].income;
 				ex_speed-=staffs[i].salary;
+				staffs[i].counted_flag=1;
 			}
 		speed+=ex_speed*speed_muti;
 		Display_Main();
@@ -715,11 +725,12 @@
 	function daily()
 	{
 		for (var i=0;i<staff_now;i++) 
-			if(staffs[i].work!=0)
+			if(staffs[i].work>0)
 				{
 					staffs[i].HP_now-=scps[staffs[i].work-1].atk;
 					staffs[i].SAN_now-=2;
 				}
+			else if(staffs[i])
 		money+=speed;
 	}
 	
