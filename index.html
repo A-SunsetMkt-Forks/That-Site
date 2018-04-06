@@ -207,12 +207,10 @@
 	var staff_1;
 	var staff_2;
 	var staff_3;
-	var staff_sp;//特殊职员
 
 	var scp_1;
 	var scp_2;
 	var scp_3;
-	var scp_sp;//特殊scp（特殊的special[笑]）
 
 	var speed_muti = 1;
 	var damage_muti = 1;
@@ -309,12 +307,26 @@
 
 	function Pop_a_Staff() 
 	{
+		var cache = Roll(1,100);
+		if(cache!=77)
+		{		
 			var name=Name();
 			var HP=Roll(Site_Level*20-15,Site_Level*20);
 			var salary=Roll(Site_Level*200-150,Site_Level*200);
 			var SAN=Roll(Site_Level*10-5,Site_Level*10);
 			var inc=Roll(1,25)/10;
 			return {name:name,HP:HP,salary:salary,SAN:SAN,inc:inc}
+		}
+		else 
+		{
+			var special_name = new Array("Hannah Mei","Freedom Koo","Dr. Fuban","Agent Asriel","Dr. Varitas","Dr. Element","Dr. Bread","Dr. See","Dr. Prism","Dr. Tictoc","Svba","Dr. Bishop","Raki","Dr. Blues","Dr. Veleafer","Agent Phage","Fenrir Flamel","Hensec Stutter","Agent Mei","QbLevi","Dr. Knowledge","Holy DarkLight","WorkerForSecret","Dr. Kalizi");
+			var name = special_name[Roll(0,24)];
+			var HP=Roll(Site_Level*20-15,Site_Level*20);
+			var salary=Roll(Site_Level*200-150,Site_Level*200);
+			var SAN=Roll(Site_Level*10-5,Site_Level*10);
+			var inc=Roll(8,25)/10;
+			return {name:name,HP:HP,salary:salary,SAN:SAN,inc:inc}
+		}
 	}
 
 	function Show_HP(ord) 
@@ -433,7 +445,6 @@
 			break;}
 			case 2:{staffs[staff_now] = new new_staff(staff_2,0);break;}
 			case 3:{staffs[staff_now] = new new_staff(staff_3,0);break;}
-			case "sp":{staffs[staff_now] = new new_staff(staff_sp,0);break;}
 		}
 		
 
@@ -700,7 +711,6 @@
 			case 1:{scps[scp_now]= new new_scp(scp_1,0);break;}
 			case 2:{scps[scp_now]= new new_scp(scp_2,0);break;}
 			case 3:{scps[scp_now]= new new_scp(scp_3,0);break;}
-			case "sp":{scps[scp_now]= new new_scp(scp_sp	,0);break;}
 		}
 		
 
@@ -767,11 +777,13 @@
 					
 				}
 				else if(staffs[i].work<0)
-				switch(scps[staffs[i].work+1].level)
 				{
-					case "Safe":{ex_speed-=50*(100-scps[staffs[i].work+1].contentment);break;}
-					case "Euclid":{ex_speed-=100*(100-scps[staffs[i].work+1].contentment);break;}
-					case "Keter":{ex_speed-=200*(100-scps[staffs[i].work+1].contentment);break;}
+				switch(scps[Math.abs(staffs[i].work+1)].level)
+				{
+					case "Safe":{ex_speed-=50*(100-scps[Math.abs(staffs[i].work+1)].contentment);break;}
+					case "Euclid":{ex_speed-=100*(100-scps[Math.abs(staffs[i].work+1)].contentment);break;}
+					case "Keter":{ex_speed-=200*(100-scps[Math.abs(staffs[i].work+1)].contentment);break;}
+				}
 				}
 				ex_speed-=staffs[i].salary;
 			}
@@ -803,7 +815,7 @@
 				{
 					staffs[i].SAN_now-=2;
 
-					scps[staffs[i].work+1].contentment=100;
+					scps[Math.abs(staffs[i].work+1)].contentment=100;
 				}
 				determine("staff",i);
 			}
