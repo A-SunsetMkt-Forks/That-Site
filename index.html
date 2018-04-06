@@ -68,7 +68,7 @@
 
 <body>
 	
-
+	<div id="time">Day 1,0:00</div>
 	<ul style="float: left;">
 		<li>站点名称：<div id="Site_name"> </div></li>
 		<li>站点等级：<div id="Site_Level"></div>
@@ -77,7 +77,7 @@
 		</li>
 		<li>异常数量：<div id="scp_capacity"></div>
 		</li>
-		<li>资金：<a id="money"></a><a id="speed" style="color:#7CFC00;">(+0)</a>
+		<li>资金：<a id="money"></a><a id="speed">(+0)</a>
 		</li>
 	</ul>
 	<!--
@@ -158,7 +158,11 @@
 
 </body>
 
-<ul style="top: 180px;width: 140px;position: absolute;height: 1000px;border-color: white;">
+<ul style="top: 280px;width: 140px;position: absolute;height: 1000px;border-color: white;">
+	<li>
+		<button onclick="alert('才怪')">点我氪金变强
+		</button>
+	</li>
 </ul>
 <script type="text/javascript">
 
@@ -168,25 +172,32 @@
 	var staff_capacity = 5;
 	var speed = 200;
 	
-	var staff_name = new Array(50);
-	staff_name.fill(0);
-	var staff_san = new Array(50);
-	var staff_hp = new Array(50);
-	var staff_salary = new Array(50);
-	var staff_hp_now = new Array(50);
-	var staff_san_now = new Array(50);
-	var staff_level = new Array(50);
+	var staffs=[];
+	function new_staff(staff,work)
+	{
+		this.name=staff.name;
+		this.HP=staff.HP;
+		this.HP_now=staff.HP
+		this.SAN=staff.SAN;
+		this.SAN_now=staff.SAN
+		this.level=1;
+		this.salary=staff.salary;
+		this.skill=0;
+		this.inc=staff.inc;
+		this.work=work;
+	}
 
-	var scp_number = new Array(50);
-	scp_number.fill(0);
-	var scp_level = new Array(50);
-	var scp_atk = new Array(50);
-	var scp_chara = new Array(50);
-
-	var staff_scp = new Array(50);
-	staff_scp.fill(0);
-	var scp_staff = new Array(50);
-	scp_staff.fill(0);
+	var scps=[];
+	function new_scp(scp,owner) 
+	{
+		this.num=scp.num;
+		this.level=scp.level;
+		this.atk=scp.atk;
+		this.income=scp.income;
+		this.chara=scp.chara;
+		this.owner=0;
+		this.progress=0;
+	}
 
 	var staff_now = 0;
 	var scp_now = 0;
@@ -203,6 +214,9 @@
 
 	var speed_muti = 1;
 	var damage_muti = 1;
+
+	var day=1;
+	var time=0;
 
 	function Roll(min,max) 
 	{
@@ -291,30 +305,21 @@
 	function Pop_a_Staff() 
 	{
 			var name=Name();
-			var hp=Roll(Site_Level*20-15,Site_Level*20);
+			var HP=Roll(Site_Level*20-15,Site_Level*20);
 			var salary=Roll(Site_Level*200-150,Site_Level*200);
-			var san=Roll(Site_Level*10-5,Site_Level*10);
-
-			/*staff_now++;
-
-			staffs[staff_now].name=name;
-			staffs[staff_now].hp=hp;
-			staffs[staff_now].salary=salary;
-			staffs[staff_now].san=san;
-			staffs[staff_now].hp_now=hp;
-			staffs[staff_now].san_now=san;
-			写错了*/
-			return {name:name,hp:hp,salary:salary,san:san}
+			var SAN=Roll(Site_Level*10-5,Site_Level*10);
+			var inc=Roll(1,25)/10;
+			return {name:name,HP:HP,salary:salary,SAN:SAN,inc:inc}
 	}
 
 	function Show_HP(ord) 
 	{
-		return staff_hp_now[ord]+"/"+staff_hp[ord];
+		return staffs[ord].HP_now+"/"+staffs[ord].HP;
 	}
 
 	function Show_SAN(ord) 
 	{
-		return staff_san_now[ord]+"/"+staff_san[ord];
+		return staffs[ord].SAN_now+"/"+staffs[ord].SAN;
 	}
 
 	function show_staff_number(ord) 
@@ -336,17 +341,23 @@
 	{
 		if (type=="staff") 
 		{
-			if(staff_scp[ord]==0) return "休息中。";
+			if(staffs[ord].work==0) return "休息中。";
 			else
-				if(staff_scp[ord]<0) return "维修SCP-AB-"+(staff_scp[ord]*(-1))+"的收容间中。";
+				if(staffs[ord].work<0) return "维修SCP-AB-"+(scps[staffs[ord].work*(-1)-1].num)+"的收容间中。";
 			else
-				return "完成对SCP-AB-"+scp_number[staff_scp[ord]-1]+"的收容工作中。";
+				return "完成对SCP-AB-"+scps[staffs[ord].work-1].num+"的收容工作中。";
 		}
 		else
 		{
-			if(scp_staff[ord]==0) return "无";
-			else return staff_name[scp_staff[ord]];
+			if(scps[ord].owner==0) return "无";
+			else return staffs[scps[ord].owner-1].name;
 		}
+	}
+
+	function Show_Staff_Benefit(ord) 
+	{
+		if(staffs[ord].work>0) return "-"+staffs[ord].salary+"/+"+Math.floor(staffs[ord].inc*scps[staffs[ord].work-1].income);
+		else return "-"+staffs[ord].salary+"/+0";
 	}
 
 	function Popup() 
@@ -382,20 +393,20 @@
 
 		document.getElementById("staff_1").innerHTML='<ul><li><div id="name1"></div></li><li><div id="hp1"></div></li><li><div id="san1"></div></li><li><div id="salary1"></div></li></ul>'
 		document.getElementById("name1").innerHTML = "职员姓名："+staff_1.name;
-		document.getElementById("hp1").innerHTML = "职员HP："+staff_1.hp;
-		document.getElementById("san1").innerHTML = "职员SAN："+staff_1.san;
+		document.getElementById("hp1").innerHTML = "职员HP："+staff_1.HP;
+		document.getElementById("san1").innerHTML = "职员SAN："+staff_1.SAN;
 		document.getElementById("salary1").innerHTML = "职员收益："+staff_1.salary;
 
 		document.getElementById("staff_2").innerHTML='<ul><li><div id="name2"></div></li><li><div id="hp2"></div></li><li><div id="san2"></div></li><li><div id="salary2"></div></li></ul>'
 		document.getElementById("name2").innerHTML = "职员姓名："+staff_2.name;
-		document.getElementById("hp2").innerHTML = "职员HP："+staff_2.hp;
-		document.getElementById("san2").innerHTML = "职员SAN："+staff_2.san;
+		document.getElementById("hp2").innerHTML = "职员HP："+staff_2.HP;
+		document.getElementById("san2").innerHTML = "职员SAN："+staff_2.SAN;
 		document.getElementById("salary2").innerHTML = "职员收益："+staff_2.salary;
 
 		document.getElementById("staff_3").innerHTML='<ul><li><div id="name3"></div></li><li><div id="hp3"></div></li><li><div id="san3"></div></li><li><div id="salary3"></div></li></ul>'
 		document.getElementById("name3").innerHTML = "职员姓名："+staff_3.name;
-		document.getElementById("hp3").innerHTML = "职员HP："+staff_3.hp;
-		document.getElementById("san3").innerHTML = "职员SAN："+staff_3.san;
+		document.getElementById("hp3").innerHTML = "职员HP："+staff_3.HP;
+		document.getElementById("san3").innerHTML = "职员SAN："+staff_3.SAN;
 		document.getElementById("salary3").innerHTML = "职员收益："+staff_3.salary;
 		
 		document.getElementById("yes").style.display="none"
@@ -412,10 +423,11 @@
 	{
 		switch(ord)
 		{
-			case 1:{staff_name[staff_now]=staff_1.name;staff_hp[staff_now]=staff_1.hp;staff_san[staff_now]=staff_1.san;staff_salary[staff_now]=staff_1.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
-			case 2:{staff_name[staff_now]=staff_2.name;staff_hp[staff_now]=staff_2.hp;staff_san[staff_now]=staff_2.san;staff_salary[staff_now]=staff_2.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
-			case 3:{staff_name[staff_now]=staff_3.name;staff_hp[staff_now]=staff_3.hp;staff_san[staff_now]=staff_3.san;staff_salary[staff_now]=staff_3.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
-			case "sp":{staff_name[staff_now]=staff_sp.name;staff_hp[staff_now]=staff_sp.hp;staff_san[staff_now]=staff_sp.san;staff_salary[staff_now]=staff_sp.salary;staff_hp_now[staff_now]=staff_hp[staff_now];staff_san_now[staff_now]=staff_san[staff_now];staff_level[staff_now]=1;break;}
+			case 1:{staffs[staff_now] = new new_staff(staff_1,0);
+			break;}
+			case 2:{staffs[staff_now] = new new_staff(staff_2,0);break;}
+			case 3:{staffs[staff_now] = new new_staff(staff_3,0);break;}
+			case "sp":{staffs[staff_now] = new new_staff(staff_sp,0);break;}
 		}
 		
 
@@ -483,10 +495,13 @@
 
 	function level_up(ord) 
 	{
-		staff_level[ord]++;
-		staff_hp[ord]=staff_hp[ord]+Roll(staff_level[ord]*8-5,staff_level[ord]*8);
-		staff_san[ord]+=Roll(staff_level[ord]*8-5,staff_level[ord]*8);
-		staff_salary[ord]+=Roll(staff_level[ord]*50-5,staff_level[ord]*50);
+		staffs[ord].level++;
+		staffs[ord].HP+=Roll(staffs[ord].level*8-5,staffs[ord].level*8);
+		staffs[ord].SAN+=Roll(staffs[ord].level*8-5,staffs[ord].level*8);
+		staffs[ord].salary+=Roll(staffs[ord].level*20-5,staffs[ord].level*20);
+		staffs[ord].HP_now+=10;
+		staffs[ord].SAN_now+=10;
+		staffs[ord].inc++;
 		SHow_A_Staff(ord);
 		count();
 	}
@@ -495,7 +510,7 @@
 	{
 		document.getElementById("content").style.display="block";
 		document.getElementById("mask").style.display="block";
-		document.getElementById("content").innerHTML="<br><br>"+staff_name[ord]+"的工作是:<br><br>"
+		document.getElementById("content").innerHTML="<br><br>"+staffs[ord].name+"的工作是:<br><br>"
 		var u = document.createElement("li");
 		u.innerHTML="研究    "
 		document.getElementById("content").appendChild(u);
@@ -503,37 +518,37 @@
 		u.appendChild(s);
 		s.id="Which_To_Study"
 		for (var i=0;i<scp_now;i++) 
-			if(scp_number[i]!=0)
-			s.add(new Option("SCP-AB-"+scp_number[i],i));
+			if(scps[i].num!=0)
+			s.add(new Option("SCP-AB-"+scps[i].num,i));
 		s = document.createElement("button");
 		u.appendChild(s);
 		s.innerHTML="确定";
 		function a() 
 		{
 			var index = document.getElementById("Which_To_Study").selectedIndex;
-			if(scp_number[index]!=0)
-				staff_scp[ord]=index+1;
+			if(scps[index].num!=0)
+				staffs[ord].work=index+1;
 			Hide();
 			SHow_A_Staff(ord);
 			document.getElementById("show_staff_"+ord).style.height="230px";
+			count();
 		}
 		s.onclick=a;
-
 	}
-
+	
 	function SHow_A_Staff(ord) 
 	{
-		document.getElementById("show_staff_name_"+ord).innerHTML="职员名称："+staff_name[ord];
-		document.getElementById("show_staff_level_"+ord).innerHTML="职员等级："+staff_level[ord];
+		document.getElementById("show_staff_name_"+ord).innerHTML="职员名称："+staffs[ord].name;
+		document.getElementById("show_staff_level_"+ord).innerHTML="职员等级："+staffs[ord].level;
 		document.getElementById("show_staff_hp_"+ord).innerHTML="HP："+Show_HP(ord);
 		document.getElementById("show_staff_san_"+ord).innerHTML="SAN："+Show_SAN(ord);
-		document.getElementById("show_staff_salary_"+ord).innerHTML="收益："+staff_salary[ord];
+		document.getElementById("show_staff_salary_"+ord).innerHTML="效益："+Show_Staff_Benefit(ord);
 		document.getElementById("show_staff_state_"+ord).innerHTML="状态："+show_state("staff",ord);
 	}
 
 	function give_a_level() 
 	{
-		var i=Roll(1,4);
+		var i=Roll(1,2);
 		switch (i)
 		{
 			case 1:{return "Safe";break;}
@@ -547,8 +562,18 @@
 		switch (level)
 		{
 			case "Safe":{return Roll(Site_Level*5-5,Site_Level*5);break;}
-			case "Euclid":{return Roll(Site_Level*20-20,Site_Level*20);break;}
-			case "Keter":{return Roll(Site_Level*50-50,Site_Level*50);break;}
+			case "Euclid":{return Roll(Site_Level*20-10,Site_Level*20);break;}
+			case "Keter":{return Roll(Site_Level*50-30,Site_Level*50);break;}
+		}
+	}
+
+	function give_income(level) 
+	{
+		switch (level)
+		{
+			case "Safe":{return Roll(Site_Level*100-80,Site_Level*100);break;}
+			case "Euclid":{return Roll(Site_Level*200-100,Site_Level*200);break;}
+			case "Keter":{return Roll(Site_Level*500-300,Site_Level*500);break;}
 		}
 	}
 
@@ -557,9 +582,10 @@
 			var num=Roll(2,999);
 			var level=give_a_level();
 			var atk=give_atk(level);
+			var income=give_income(level);
 			var chara=Roll(100,999);
 
-			return {num:num,level:level,atk:atk,chara:chara}
+			return {num:num,level:level,atk:atk,chara:chara,income:income}
 	}
 
 	function Popup_a_scp() 
@@ -589,23 +615,26 @@
 
 		document.getElementById("content").style.height="440px";
 
-		document.getElementById("scp_1").innerHTML='<ul><li><div id="num1"></div></li><li><div id="level1"></div></li><li><div id="atk1"></div></li><li><div id="chara1"></div></li></ul>'
+		document.getElementById("scp_1").innerHTML='<ul><li><div id="num1"></div></li><li><div id="level1"></div></li><li><div id="atk1"></div></li><li><div id="chara1"></div><div id="income1"></div></li></ul>'
 		document.getElementById("num1").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_1.num);
 		document.getElementById("level1").innerHTML = "项目等级："+scp_1.level;
 		document.getElementById("atk1").innerHTML = "ATK："+scp_1.atk;
 		document.getElementById("chara1").innerHTML = "描述："+descirbe(scp_1.chara);
+		document.getElementById("income1").innerHTML="研究价值："+scp_1.income;
 
-		document.getElementById("scp_2").innerHTML='<ul><li><div id="num2"></div></li><li><div id="level2"></div></li><li><div id="atk2"></div></li><li><div id="chara2"></div></li></ul>'
+		document.getElementById("scp_2").innerHTML='<ul><li><div id="num2"></div></li><li><div id="level2"></div></li><li><div id="atk2"></div></li><li><div id="chara2"></div><div id="income2"></div></li></ul>'
 		document.getElementById("num2").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_2.num);
 		document.getElementById("level2").innerHTML = "项目等级："+scp_2.level;
 		document.getElementById("atk2").innerHTML = "ATK："+scp_2.atk;
 		document.getElementById("chara2").innerHTML = "描述："+descirbe(scp_2.chara);
+		document.getElementById("income2").innerHTML="研究价值："+scp_2.income;
 
-		document.getElementById("scp_3").innerHTML='<ul><li><div id="num3"></div></li><li><div id="level3"></div></li><li><div id="atk3"></div></li><li><div id="chara3"></div></li></ul>'
+		document.getElementById("scp_3").innerHTML='<ul><li><div id="num3"></div></li><li><div id="level3"></div></li><li><div id="atk3"></div></li><li><div id="chara3"></div><div id="income3"></div></li></ul>'
 		document.getElementById("num3").innerHTML = "项目编号：SCP-AB-"+show_scps_num(scp_3.num);
 		document.getElementById("level3").innerHTML = "项目等级："+scp_3.level;
 		document.getElementById("atk3").innerHTML = "ATK："+scp_3.atk;
 		document.getElementById("chara3").innerHTML = "描述："+descirbe(scp_3.chara);
+		document.getElementById("income3").innerHTML="研究价值："+scp_3.income;
 		
 		document.getElementById("yes").style.display="none"
 		document.getElementById("firsts").innerHTML="SCP-AB-"+show_scps_num(scp_1.num);
@@ -621,10 +650,10 @@
 	{
 		switch(ord)
 		{
-			case 1:{scp_number[scp_now]=scp_1.num;scp_level[scp_now]=scp_1.level;scp_atk[scp_now]=scp_1.atk;scp_chara[scp_now]=scp_1.chara;break;}
-			case 2:{scp_number[scp_now]=scp_2.num;scp_level[scp_now]=scp_2.level;scp_atk[scp_now]=scp_2.atk;scp_chara[scp_now]=scp_2.chara;break;}
-			case 3:{scp_number[scp_now]=scp_3.num;scp_level[scp_now]=scp_3.level;scp_atk[scp_now]=scp_3.atk;scp_chara[scp_now]=scp_3.chara;break;}
-			case "sp":{scp_number[scp_now]=scp_sp.number;scp_level[scp_now]=scp_sp.level;scp_atk[scp_now]=scp_sp.atk;scp_chara[scp_now]=scp_sp.chara;break;}
+			case 1:{scps[scp_now]= new new_scp(scp_1,0);break;}
+			case 2:{scps[scp_now]= new new_scp(scp_2,0);break;}
+			case 3:{scps[scp_now]= new new_scp(scp_3,0);break;}
+			case "sp":{scps[scp_now]= new new_scp(scp_sp	,0);break;}
 		}
 		
 
@@ -643,6 +672,9 @@
 		k =  document.createElement("li");
 		document.getElementById("show_scp_"+scp_now).appendChild(k);
 		k.id = "show_scp_chara_"+scp_now;
+		k =  document.createElement("li");
+		document.getElementById("show_scp_"+scp_now).appendChild(k);
+		k.id = "show_scp_income_"+scp_now;
 		
 		document.getElementById("show_scp_"+scp_now).style.top="50px";
 		document.getElementById("show_scp_"+scp_now).style.width="200px";
@@ -650,10 +682,11 @@
 		document.getElementById("show_scp_"+scp_now).style.left="30px";
 		document.getElementById("show_scp_"+scp_now).style.float="left";
 
-		document.getElementById("show_scp_number_"+scp_now).innerHTML="项目编号：SCP-AB-"+show_scps_num(scp_number[scp_now]);
-		document.getElementById("show_scp_level_"+scp_now).innerHTML="项目等级："+scp_level[scp_now];
-		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATK："+scp_atk[scp_now];
-		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+descirbe(scp_chara[scp_now]);
+		document.getElementById("show_scp_number_"+scp_now).innerHTML="项目编号：SCP-AB-"+show_scps_num(scps[scp_now].num);
+		document.getElementById("show_scp_level_"+scp_now).innerHTML="项目等级："+scps[scp_now].level;
+		document.getElementById("show_scp_atk_"+scp_now).innerHTML="ATK："+scps[scp_now].atk;
+		document.getElementById("show_scp_chara_"+scp_now).innerHTML="描述："+descirbe(scps[scp_now].chara);
+		document.getElementById("show_scp_income_"+scp_now).innerHTML="研究价值："+scps[scp_now].income
 		
 		scp_now++;
 		Display_Main();
@@ -670,13 +703,37 @@
 	{
 		var ex_speed = 0;
 		for (var i=0;i<staff_now;i++) 
-			ex_speed+=staff_salary[i];
+			{
+				if(staffs[i].work>0)
+				ex_speed+=staffs[i].inc*scps[staffs[i].work-1].income;
+				ex_speed-=staffs[i].salary;
+			}
 		speed+=ex_speed*speed_muti;
 		Display_Main();
 	}
 
-
+	function daily()
+	{
+		for (var i=0;i<staff_now;i++) 
+			if(staffs[i].work!=0)
+				{
+					staffs[i].HP_now-=scps[staffs[i].work-1].atk;
+					staffs[i].SAN_now-=2;
+				}
+		money+=speed;
+	}
 	
+	function hour() 
+	{
+		if(time==23) {time=0;day++;daily();}
+		else time++;
+		document.getElementById("time").innerHTML="Day "+day+" , "+time+":00";
+		Display_Main();
+		for(var i=0;i<staff_now;i++) SHow_A_Staff(i);
+	}
+
 	Display_Main();
+
+	var spc=setInterval("hour()",1000);
 
 	</script>
